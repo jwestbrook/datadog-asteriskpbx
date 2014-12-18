@@ -106,6 +106,3 @@ class AsteriskCheck(AgentCheck):
         self.gauge('asterisk.iax2.offline',iax_peers_offline)
         self.gauge('asterisk.iax2.unmonitored',iax_peers_unmonitored)
 
-
-        mgr.logoff()
-        mgr.close()
