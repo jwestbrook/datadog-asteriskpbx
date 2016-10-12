@@ -62,7 +62,7 @@ Check the datadog service status.
 /etc/init.d/datadog-agent info
 ```
 
-The output sholud be like the next text.
+The output should be like the next text.
 
 ```
     asteriskpbx
