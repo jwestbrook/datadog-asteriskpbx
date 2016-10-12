@@ -90,3 +90,5 @@ print('IAX2 Peers Offline')
 print(iax_peers_offline)
 print('IAX2 Peers Unmonitored')
 print(iax_peers_unmonitored)
+
+mgr.close()
