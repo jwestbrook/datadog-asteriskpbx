@@ -105,4 +105,41 @@ class AsteriskCheck(AgentCheck):
         self.gauge('asterisk.iax2.online',iax_peers_online)
         self.gauge('asterisk.iax2.offline',iax_peers_offline)
         self.gauge('asterisk.iax2.unmonitored',iax_peers_unmonitored)
+        
+##### DAHDI Channels  
+        
+        dahdi_result = mgr.command('dahdi show status')
 
+        dahdi_results = dahdi_result.data.split('\n')
+        
+        dahdi_total_trunks = len(dahdi_results)-3
+        
+        dahdi_results[0] = None
+        
+        dahdi_online_trunks = 0
+        dahdi_offline_trunks = 0
+        
+        for chan in dahdi_results:
+            if chan != None:
+                chan_data = chan.split()
+
+                if len(chan_data) > 1:
+                    if "Wildcard" in chan_data[0]:
+                        if len(chan_data) > 2 and chan_data[2] == "OK":
+                            dahdi_online_trunks += 1
+                        if len(chan_data) > 2 and chan_data[2] == "RED":
+                            dahdi_offline_trunks += 1
+
+                    if "wanpipe" in chan_data[0]:
+                        if len(chan_data) > 2 and chan_data[3] == "OK":
+                            dahdi_online_trunks += 1
+                        if len(chan_data) > 2 and chan_data[3] == "RED":
+                            dahdi_offline_trunks += 1
+                    
+        self.gauge('asterisk.dahdi.total',dahdi_total_trunks)
+        self.gauge('asterisk.dahdi.online',dahdi_online_trunks)
+        self.gauge('asterisk.dahdi.offline',dahdi_offline_trunks)
+
+##### Close connection
+
+        mgr.close()

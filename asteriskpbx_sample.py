@@ -91,4 +91,32 @@ print(iax_peers_offline)
 print('IAX2 Peers Unmonitored')
 print(iax_peers_unmonitored)
 
+dahdi_result = mgr.command('dahdi show status')
+
+dahdi_results = dahdi_result.data.split('\n')
+
+dahdi_total_trunks = len(dahdi_results)-3
+
+dahdi_results[0] = None
+
+dahdi_online_trunks = 0
+dahdi_offline_trunks = 0
+
+for chan in dahdi_results:
+    if chan != None:
+        chan_data = chan.split()
+        if len(chan_data) > 2 and chan_data[2] == "OK":
+            dahdi_online_trunks += 1
+        if len(chan_data) > 2 and chan_data[2] == "RED":
+            dahdi_offline_trunks += 1
+
+print('Total Dahdi Trunks')
+print(dahdi_total_trunks)
+
+print('DAHDI Online Trunks')
+print(dahdi_online_trunks)
+
+print('DAHDI Offline Trunks')
+print(dahdi_offline_trunks)
+
 mgr.close()
