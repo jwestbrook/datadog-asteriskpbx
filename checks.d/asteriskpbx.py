@@ -122,10 +122,19 @@ class AsteriskCheck(AgentCheck):
         for chan in dahdi_results:
             if chan != None:
                 chan_data = chan.split()
-                if len(chan_data) > 2 and chan_data[2] == "OK":
-                    dahdi_online_trunks += 1
-                if len(chan_data) > 2 and chan_data[2] == "RED":
-                    dahdi_offline_trunks += 1
+
+                if len(chan_data) > 1:
+                    if "Wildcard" in chan_data[0]:
+                        if len(chan_data) > 2 and chan_data[2] == "OK":
+                            dahdi_online_trunks += 1
+                        if len(chan_data) > 2 and chan_data[2] == "RED":
+                            dahdi_offline_trunks += 1
+
+                    if "wanpipe" in chan_data[0]:
+                        if len(chan_data) > 2 and chan_data[3] == "OK":
+                            dahdi_online_trunks += 1
+                        if len(chan_data) > 2 and chan_data[3] == "RED":
+                            dahdi_offline_trunks += 1
                     
         self.gauge('asterisk.dahdi.total',dahdi_total_trunks)
         self.gauge('asterisk.dahdi.online',dahdi_online_trunks)
