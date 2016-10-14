@@ -1,7 +1,7 @@
-datadog-asteriskpbx
+Asterisk PBX Integration for Datadog
 ===================
 
-DataDog Agent plugin for the Open Source Asterisk PBX
+DataDog Agent plugin for the Open Source Asterisk PBX based on the work of jwestbrook (https://github.com/jwestbrook/datadog-asteriskpbx).
 
 Prerequisites
 -----------
