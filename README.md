@@ -22,7 +22,7 @@ Get the module files for the datadog agent.
 cd /usr/src/
 wget https://github.com/mafairnet/datadog-asteriskpbx/archive/master.zip
 unzip master.zip
-cd datadog-asteriskpbx-master/
+cd Asterisk-PBX-Integration-for-Datadog-master/
 ```
 
 Copy the module files to the datadog directories.
@@ -68,5 +68,16 @@ The output should be like the next text.
     asteriskpbx
     -----------
       - instance #0 [OK]
-      - Collected 11 metrics, 0 events & 1 service check
+      - Collected 17 metrics, 0 events & 1 service check
+```
+
+Important notes
+-----------
+**SIP Trunks Metrics**
+You have to add '-trunk' string into your SIP trunk name to detect it as a Trunk so the script can detect the SIP Trunks. You can verify this when executing the next command in the console:
+
+```
+[user@yourpbx]# asterisk -rx 'sip show peers' | grep "\-trunk"
+SIP1-trunk          192.168.1.10                                  Yes        Yes            5060     OK (1 ms)
+SIP2-trunk/SIP2     192.168.1.11                                  Yes        Yes            5060     OK (1 ms)
 ```

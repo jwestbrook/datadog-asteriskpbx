@@ -69,6 +69,28 @@ class AsteriskCheck(AgentCheck):
         self.gauge('asterisk.sip.monitored.offline',monitored_peers[1])
         self.gauge('asterisk.sip.unmonitored.online',unmonitored_peers[0])
         self.gauge('asterisk.sip.unmonitored.offline',unmonitored_peers[1])
+        
+##### SIP Trunks (You have to add '-trunk' string into your SIP trunk name to detect it as a Trunk)
+        sip_total_trunks = 0
+        sip_online_trunks = 0
+        sip_offline_trunks = 0
+
+
+        for chan in sip_results:
+            if chan != None:
+                chan_data = chan.split()
+
+                if len(chan_data) > 1:
+                    if "-trunk" in chan_data[0]:
+                        sip_total_trunks += 1
+                        if len(chan_data) > 2 and "OK" in chan_data[5]:
+                            sip_online_trunks += 1
+                        if len(chan_data) > 2 and chan_data[2] == "UNREACHABLE":
+                            sip_offline_trunks += 1
+                            
+        self.gauge('asterisk.sip.trunks.total',sip_total_trunks)
+        self.gauge('asterisk.sip.trunks.online',sip_online_trunks)
+        self.gauge('asterisk.sip.trunks.offline',sip_offline_trunks)
 
 ##### PRI In Use
 
