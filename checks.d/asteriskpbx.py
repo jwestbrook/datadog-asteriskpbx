@@ -85,7 +85,7 @@ class AsteriskCheck(AgentCheck):
                         sip_total_trunks += 1
                         if len(chan_data) > 2 and "OK" in chan_data[5]:
                             sip_online_trunks += 1
-                        if len(chan_data) > 2 and chan_data[2] == "UNREACHABLE":
+                        if len(chan_data) > 2 and chan_data[5] == "UNREACHABLE":
                             sip_offline_trunks += 1
                             
         self.gauge('asterisk.sip.trunks.total',sip_total_trunks)

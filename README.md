@@ -74,6 +74,7 @@ The output should be like the next text.
 Important notes
 -----------
 **SIP Trunks Metrics**
+
 You have to add '-trunk' string into your SIP trunk name to detect it as a Trunk so the script can detect the SIP Trunks. You can verify this when executing the next command in the console:
 
 ```
