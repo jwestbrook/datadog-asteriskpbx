@@ -24,6 +24,9 @@ secret  = "secret"
 mgr = asterisk.manager.Manager()
 mgr.connect(host,port)
 mgr.login(user,secret)
+
+#Call volume
+
 call_volume = mgr.command('core show calls')
 
 current_call_vol = call_volume.data.split('\n')
@@ -34,6 +37,8 @@ current_call_vol = current_call_vol.replace(' ','')
 
 print('Current Call Volume')
 print(current_call_vol)
+
+#PRI Channels
 
 pri = mgr.command('pri show channels')
 
@@ -52,6 +57,8 @@ for chan in pri_channels:
 print('Current in use PRI Channels')
 print(openchannels)
 
+#SIP Peers
+
 sip_result = mgr.command('sip show peers')
 
 sip_results = sip_result.data.split('\n')
@@ -69,6 +76,8 @@ print('Monitored SIP Peers online/offline')
 print(monitored_peers)
 print('Unmonitored SIP Peers online/offline')
 print(unmonitored_peers)
+
+#IAX2 Peers
 
 iax_result = mgr.command('iax2 show peers')
 
@@ -91,6 +100,8 @@ print(iax_peers_offline)
 print('IAX2 Peers Unmonitored')
 print(iax_peers_unmonitored)
 
+#DAHDI Trunks
+
 dahdi_result = mgr.command('dahdi show status')
 
 dahdi_results = dahdi_result.data.split('\n')
@@ -104,11 +115,22 @@ dahdi_offline_trunks = 0
 
 for chan in dahdi_results:
     if chan != None:
+
         chan_data = chan.split()
-        if len(chan_data) > 2 and chan_data[2] == "OK":
-            dahdi_online_trunks += 1
-        if len(chan_data) > 2 and chan_data[2] == "RED":
-            dahdi_offline_trunks += 1
+
+        if len(chan_data) > 1:
+            #Digium Cards
+            if "Wildcard" in chan_data[0]:
+                if len(chan_data) > 2 and chan_data[2] == "OK":
+                    dahdi_online_trunks += 1
+                if len(chan_data) > 2 and chan_data[2] == "RED":
+                    dahdi_offline_trunks += 1
+            #Sangoma Cards
+            if "wanpipe" in chan_data[0]:
+                if len(chan_data) > 2 and chan_data[3] == "OK":
+                    dahdi_online_trunks += 1
+                if len(chan_data) > 2 and chan_data[3] == "RED":
+                    dahdi_offline_trunks += 1
 
 print('Total Dahdi Trunks')
 print(dahdi_total_trunks)
@@ -118,5 +140,55 @@ print(dahdi_online_trunks)
 
 print('DAHDI Offline Trunks')
 print(dahdi_offline_trunks)
+
+#SIP Trunks (You have to add '-trunk' string into your SIP trunk name to detect it as a Trunk)
+
+sip_results[0] = None
+
+sip_online_trunks = 0
+sip_offline_trunks = 0
+sip_total_trunks = 0
+
+for chan in sip_results:
+    if chan != None:
+        chan_data = chan.split()
+
+        if len(chan_data) > 1:
+            if "-trunk" in chan_data[0]:
+                sip_total_trunks += 1
+                if len(chan_data) > 2 and "OK" in chan_data[5]:
+                    sip_online_trunks += 1
+                if len(chan_data) > 2 and chan_data[5] == "UNREACHABLE":
+                    sip_offline_trunks += 1
+
+print('Total SIP Trunks')
+print(sip_total_trunks)
+
+print('SIP Online Trunks')
+print(sip_online_trunks)
+
+print('SIP Offline Trunks')
+print(sip_offline_trunks)
+
+##### G729 Codecs 
+
+g729_result = mgr.command('g729 show licenses')
+
+g729_results = g729_result.data.split('\n')
+
+g729_total_line = g729_results[0]
+
+g729_total = re.findall(r'([0-9]+) licensed',g729_total_line)[0]
+g729_encoders = re.split('/',g729_total_line)[0]
+g729_decoders = re.findall(r'([0-9]+) encoders/decoders',g729_total_line)[0]
+
+print('G729 Total')
+print(g729_total)
+
+print('G279 In Use Encoders')
+print(g729_encoders)
+
+print('G279 In Use Decoders')
+print(g729_decoders)
 
 mgr.close()
