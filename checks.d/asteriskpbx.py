@@ -23,7 +23,6 @@ class AsteriskCheck(AgentCheck):
             self.log.error('manager_secret not defined, skipping')
             return
 
-
 ######  Connect
         mgr = asterisk.manager.Manager()
         try:
@@ -69,12 +68,11 @@ class AsteriskCheck(AgentCheck):
         self.gauge('asterisk.sip.monitored.offline',monitored_peers[1])
         self.gauge('asterisk.sip.unmonitored.online',unmonitored_peers[0])
         self.gauge('asterisk.sip.unmonitored.offline',unmonitored_peers[1])
-        
+
 ##### SIP Trunks (You have to add '-trunk' string into your SIP trunk name to detect it as a Trunk)
         sip_total_trunks = 0
         sip_online_trunks = 0
         sip_offline_trunks = 0
-
 
         for chan in sip_results:
             if chan != None:
@@ -87,7 +85,7 @@ class AsteriskCheck(AgentCheck):
                             sip_online_trunks += 1
                         if len(chan_data) > 2 and chan_data[5] == "UNREACHABLE":
                             sip_offline_trunks += 1
-                            
+      
         self.gauge('asterisk.sip.trunks.total',sip_total_trunks)
         self.gauge('asterisk.sip.trunks.online',sip_online_trunks)
         self.gauge('asterisk.sip.trunks.offline',sip_offline_trunks)
@@ -127,20 +125,20 @@ class AsteriskCheck(AgentCheck):
         self.gauge('asterisk.iax2.online',iax_peers_online)
         self.gauge('asterisk.iax2.offline',iax_peers_offline)
         self.gauge('asterisk.iax2.unmonitored',iax_peers_unmonitored)
-        
+   
 ##### DAHDI Channels  
-        
+    
         dahdi_result = mgr.command('dahdi show status')
 
         dahdi_results = dahdi_result.data.split('\n')
-        
+
         dahdi_total_trunks = len(dahdi_results)-3
-        
+
         dahdi_results[0] = None
-        
+
         dahdi_online_trunks = 0
         dahdi_offline_trunks = 0
-        
+
         for chan in dahdi_results:
             if chan != None:
                 chan_data = chan.split()
@@ -157,10 +155,26 @@ class AsteriskCheck(AgentCheck):
                             dahdi_online_trunks += 1
                         if len(chan_data) > 2 and chan_data[3] == "RED":
                             dahdi_offline_trunks += 1
-                    
+
         self.gauge('asterisk.dahdi.total',dahdi_total_trunks)
         self.gauge('asterisk.dahdi.online',dahdi_online_trunks)
         self.gauge('asterisk.dahdi.offline',dahdi_offline_trunks)
+        
+##### G729 Codecs 
+        
+        g729_result = mgr.command('g729 show licenses')
+
+        g729_results = g729_result.data.split('\n')
+
+        g729_total_line = g729_results[0]
+
+        g729_total = re.findall(r'([0-9]+) licensed',g729_total_line)[0]
+        g729_encoders = re.split('/',g729_total_line)[0]
+        g729_decoders = re.findall(r'([0-9]+) encoders/decoders',g729_total_line)[0]
+
+        self.gauge('asterisk.g729.total',g729_total)
+        self.gauge('asterisk.g729.encoders',g729_encoders)
+        self.gauge('asterisk.g729.decoders',g729_decoders)
 
 ##### Close connection
 

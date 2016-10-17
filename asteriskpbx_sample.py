@@ -170,6 +170,25 @@ print(sip_online_trunks)
 print('SIP Offline Trunks')
 print(sip_offline_trunks)
 
+##### G729 Codecs 
 
+g729_result = mgr.command('g729 show licenses')
+
+g729_results = g729_result.data.split('\n')
+
+g729_total_line = g729_results[0]
+
+g729_total = re.findall(r'([0-9]+) licensed',g729_total_line)[0]
+g729_encoders = re.split('/',g729_total_line)[0]
+g729_decoders = re.findall(r'([0-9]+) encoders/decoders',g729_total_line)[0]
+
+print('G729 Total')
+print(g729_total)
+
+print('G279 In Use Encoders')
+print(g729_encoders)
+
+print('G279 In Use Decoders')
+print(g729_decoders)
 
 mgr.close()
