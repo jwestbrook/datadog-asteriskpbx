@@ -242,8 +242,7 @@ class AsteriskCheck(AgentCheck):
         for chan in mfcr2_results:
             if chan != None:
                 chan_data = chan.split()
-                print(chan_data)
-        if len(chan_data) > 2:
+                if len(chan_data) > 2:
                     if "IDLE" in chan_data[6] and "IDLE" in chan_data[7] :
                         mfcr2_available_channels += 1
                     if "ANSWER" in chan_data[6] or "ANSWER" in chan_data[7] :
