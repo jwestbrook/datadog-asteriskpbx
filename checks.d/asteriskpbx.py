@@ -172,6 +172,86 @@ class AsteriskCheck(AgentCheck):
         self.gauge('asterisk.g729.total',g729_total)
         self.gauge('asterisk.g729.encoders',g729_encoders)
         self.gauge('asterisk.g729.decoders',g729_decoders)
+        
+
+##### Asterisk Uptime
+
+        uptime_result = mgr.command('core show uptime')
+        
+        uptime_results = uptime_result.data.split('\n')
+        
+        system_total_line = uptime_results[0]
+        asterisk_total_line = uptime_results[1]
+        
+        system_uptime_days = 0
+        system_uptime_hours = 0
+        system_uptime_minutes = 0
+        system_uptime_seconds = 0
+        
+        system_uptime_days = 0
+        system_uptime_hours = 0
+        system_uptime_minutes = 0
+        system_uptime_seconds = 0
+
+        if "day" in system_total_line:
+            system_uptime_days = re.findall(r'([0-9]+) day',system_total_line)[0]
+        if "hour" in system_total_line:
+            system_uptime_hours = re.findall(r'([0-9]+) hour',system_total_line)[0]
+        if "minute" in system_total_line:
+            system_uptime_minutes = re.findall(r'([0-9]+) minute',system_total_line)[0]
+        if "second" in system_total_line:
+            system_uptime_seconds = re.findall(r'([0-9]+) second',system_total_line)[0]
+
+        system_uptime = ( int(system_uptime_days) * 86400) +  ( int(system_uptime_hours) * 3600) + ( int(system_uptime_minutes) * 60) + int(system_uptime_seconds)
+        
+        asterisk_last_reload_days = 0
+        asterisk_last_reload_hours = 0
+        asterisk_last_reload_minutes = 0
+        asterisk_last_reload_seconds = 0
+        
+        if "day" in asterisk_total_line:
+            asterisk_last_reload_days = re.findall(r'([0-9]+) day',asterisk_total_line)[0]
+        if "hour" in asterisk_total_line:
+            asterisk_last_reload_hours = re.findall(r'([0-9]+) hour',asterisk_total_line)[0]
+        if "minute" in asterisk_total_line:
+            asterisk_last_reload_minutes = re.findall(r'([0-9]+) minute',asterisk_total_line)[0]
+        if "second" in asterisk_total_line:
+            asterisk_last_reload_seconds = re.findall(r' ([0-9]+) second',asterisk_total_line)[0]
+
+        asterisk_last_reload = ( int(asterisk_last_reload_days) * 86400) + ( int(asterisk_last_reload_hours) * 3600) + ( int(asterisk_last_reload_minutes) * 60) + int(asterisk_last_reload_seconds)
+
+        self.gauge('asterisk.system.uptime',system_uptime)
+        self.gauge('asterisk.last.reload',asterisk_last_reload)
+        
+##### MFCR2 Channels
+
+        mfcr2_result = mgr.command('mfcr2 show channels')
+
+        mfcr2_results = mfcr2_result.data.split('\n')
+
+        mfcr2_total_channels = len(mfcr2_results)-3
+
+        mfcr2_results[0] = None
+
+        mfcr2_inuse_channels = 0
+        mfcr2_available_channels = 0
+        mfcr2_blocked_channels = 0
+
+        for chan in mfcr2_results:
+            if chan != None:
+                chan_data = chan.split()
+                if len(chan_data) > 2:
+                    if "IDLE" in chan_data[6] and "IDLE" in chan_data[7] :
+                        mfcr2_available_channels += 1
+                    if "ANSWER" in chan_data[6] or "ANSWER" in chan_data[7] :
+                        mfcr2_inuse_channels += 1
+                    if "BLOCK" in chan_data[6] or "BLOCK" in chan_data[7] :
+                        mfcr2_blocked_channels += 1
+                        
+        self.gauge('asterisk.mfcr2.total.channels',mfcr2_total_channels)
+        self.gauge('asterisk.mfcr2.available.channels',mfcr2_available_channels)
+        self.gauge('asterisk.mfcr2.inuse.channels',mfcr2_inuse_channels)
+        self.gauge('asterisk.mfcr2.blocked.channels',mfcr2_blocked_channels)
 
 ##### Close connection
 
