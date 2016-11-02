@@ -224,6 +224,37 @@ class AsteriskCheck(AgentCheck):
 
         self.gauge('asterisk.system.uptime',system_uptime)
         self.gauge('asterisk.last.reload',asterisk_last_reload)
+        
+##### MFCR2 Channels
+
+        mfcr2_result = mgr.command('mfcr2 show channels')
+
+        mfcr2_results = mfcr2_result.data.split('\n')
+
+        mfcr2_total_channels = len(mfcr2_results)-3
+
+        mfcr2_results[0] = None
+
+        mfcr2_inuse_channels = 0
+        mfcr2_available_channels = 0
+        mfcr2_blocked_channels = 0
+
+        for chan in mfcr2_results:
+            if chan != None:
+                chan_data = chan.split()
+                print(chan_data)
+        if len(chan_data) > 2:
+                    if "IDLE" in chan_data[6] and "IDLE" in chan_data[7] :
+                        mfcr2_available_channels += 1
+                    if "ANSWER" in chan_data[6] or "ANSWER" in chan_data[7] :
+                        mfcr2_inuse_channels += 1
+                    if "BLOCK" in chan_data[6] or "BLOCK" in chan_data[7] :
+                        mfcr2_blocked_channels += 1
+                        
+        self.gauge('asterisk.mfcr2.total.channels',mfcr2_total_channels)
+        self.gauge('asterisk.mfcr2.available.channels',mfcr2_available_channels)
+        self.gauge('asterisk.mfcr2.inuse.channels',mfcr2_inuse_channels)
+        self.gauge('asterisk.mfcr2.blocked.channels',mfcr2_blocked_channels)
 
 ##### Close connection
 
