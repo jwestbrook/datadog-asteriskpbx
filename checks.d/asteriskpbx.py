@@ -74,18 +74,15 @@ class AsteriskCheck(AgentCheck):
         sip_online_trunks = 0
         sip_offline_trunks = 0
 
-        for chan in sip_results:
-            if chan != None:
-                chan_data = chan.split()
+        trunks = re.finditer('^.*-trunk.*([OK|UN].*)', sip_result.data, re.MULTILINE)
 
-                if len(chan_data) > 1:
-                    if "-trunk" in chan_data[0]:
-                        sip_total_trunks += 1
-                        if len(chan_data) > 2 and "OK" in chan_data[5]:
-                            sip_online_trunks += 1
-                        if len(chan_data) > 2 and chan_data[5] == "UNREACHABLE":
-                            sip_offline_trunks += 1
-      
+        for trunk in trunks:
+            sip_total_trunks +=1
+            if 'OK' in trunk.group():
+                sip_online_trunks += 1
+            else:
+                sip_offline_trunks += 1
+
         self.gauge('asterisk.sip.trunks.total',sip_total_trunks)
         self.gauge('asterisk.sip.trunks.online',sip_online_trunks)
         self.gauge('asterisk.sip.trunks.offline',sip_offline_trunks)
