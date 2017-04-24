@@ -281,6 +281,35 @@ print(mfcr2_available_channels)
 print('MFCR2 Blocked Channels')
 print(mfcr2_blocked_channels)
 
+##### SCCP Devices
+
+sccp_total_devices = 0
+sccp_online_devices = 0
+sccp_offline_devices = 0
+        
+sccp_result = mgr.command('sccp show devices')
+
+if "No such command" not in sccp_result.data:
+            
+    sccp_devices = re.finditer('^.*.SEP.*', sccp_result.data, re.MULTILINE)
+
+    for sccp_device in sccp_devices:
+        sccp_total_devices +=1
+        if '--' in sccp_device.group():
+            sccp_offline_devices += 1
+        else:
+            sccp_online_devices += 1
+
+print('SCCP Total Devices')
+print(sccp_total_devices)
+
+print('SCCP Online Devices')
+print(sccp_online_devices)
+
+print('SCCP Offile Devices')
+print(sccp_offline_devices)
+
+
 ##### Close connection
 
 mgr.close()
