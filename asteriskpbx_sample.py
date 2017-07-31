@@ -31,10 +31,11 @@ call_volume = mgr.command('core show calls')
 
 current_call_vol = call_volume.data.split('\n')
 
+procesed_call_vol = current_call_vol[1].replace(' calls processed','')
 current_call_vol = current_call_vol[0].replace('active call','')
 current_call_vol = current_call_vol.replace('s','')
 current_call_vol = current_call_vol.replace(' ','')
-procesed_call_vol = current_call_vol[1].replace(' calls processed','')
+
 
 print('Current Call Volume')
 print(current_call_vol)
