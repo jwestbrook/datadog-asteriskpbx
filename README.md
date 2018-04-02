@@ -5,7 +5,7 @@ DataDog Agent plugin for the Open Source Asterisk PBX based on the work of jwest
 
 Prerequisites
 -----------
-- Datadog
+- DataDog Agent v5 (1.5)
 - pyst Library
 
 Installation
