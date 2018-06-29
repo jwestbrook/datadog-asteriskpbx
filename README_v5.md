@@ -5,12 +5,11 @@ DataDog Agent plugin for the Open Source Asterisk PBX based on the work of jwest
 
 Prerequisites
 -----------
-- DataDog Agent v5 (1.5) or v6 (6.3.1)
+- DataDog Agent v5 (1.5)
 - pyst Library
 
-Installation (Datadog Agent v6)
+Installation
 -----------
-For Installation on Datadog Agent v5 [read this document](https://github.com/mafairnet/Asterisk-PBX-Integration-for-Datadog/blob/master/README_v5.md)
 Install the Asterisk Manager Python library for datadog.
 
 ```
@@ -29,14 +28,14 @@ cd Asterisk-PBX-Integration-for-Datadog-master/
 Copy the module files to the datadog directories.
 
 ```
-cp -R checks.d/asteriskpbx.py /etc/datadog-agent/checks.d/
-cp -R conf.d/asteriskpbx.yaml /etc/datadog-agent/conf.d/
+cp -R checks.d/asteriskpbx.py /opt/datadog-agent/agent/checks.d/
+cp -R conf.d/asteriskpbx.yaml /etc/dd-agent/conf.d/
 ```
 
 Edit the configuration file for the module.
 
 ```
-nano /etc/datadog-agent/conf.d/asteriskpbx.yaml
+nano /etc/dd-agent/conf.d/asteriskpbx.yaml
 ```
 
 Insert the AMI User and Password for the PBX.
