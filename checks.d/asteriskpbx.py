@@ -45,10 +45,12 @@ class AsteriskCheck(AgentCheck):
 
         current_call_vol = call_volume.data.split('\n')
 
+        procesed_call_vol = current_call_vol[1].replace(' calls processed','')
         current_call_vol = current_call_vol[0].replace('active call','')
         current_call_vol = current_call_vol.replace('s','')
         current_call_vol = current_call_vol.replace(' ','')
 
+        self.gauge('asterisk.callsprocesed',procesed_call_vol)
         self.gauge('asterisk.callvolume',current_call_vol)
 
 ##### SIP Peers
