@@ -15,11 +15,37 @@
 import asterisk.manager
 import re
 
+
+class Channel:
+  def __init__(self,Channel,Context,Extension,Priority,State,Application,Data,CallerId,Duration,AccountCode,PeerAccount,BridgedTo):
+    self.Channel        = Channel
+    self.Context        = Context
+    self.Extension      = Extension
+    self.Priority       = Priority
+    self.State          = State
+    self.Application    = Application
+    self.Data           = Data
+    self.CallerId       = CallerId
+    self.Duration       = Duration
+    self.AccountCode    = AccountCode
+    self.PeerAccount    = PeerAccount
+    self.BridgedTo      = BridgedTo
+
+class Call:
+  def __init__(self,Caller,CallerChannel,Called,CalledChannel,BridgedChannel,CallType):
+    self.Caller         = Caller
+    self.CallerChannel  = CallerChannel
+    self.Called         = Called
+    self.CalledChannel  = CalledChannel
+    self.BridgedChannel = BridgedChannel
+    self.CallType       = CallType
+
 host    = "localhost"
 port    = 5038
 user    = "user"
 secret  = "secret"
 
+extensionLength = 5
 
 mgr = asterisk.manager.Manager()
 mgr.connect(host,port)
@@ -36,12 +62,111 @@ current_call_vol = current_call_vol[0].replace('active call','')
 current_call_vol = current_call_vol.replace('s','')
 current_call_vol = current_call_vol.replace(' ','')
 
-
 print('Current Call Volume')
 print(current_call_vol)
 
 print('Current Call Processed')
 print(procesed_call_vol)
+
+
+#Internal, Inbound, Outbound Calls
+
+#Get All Active Channels
+current_channels = mgr.command('core show channels verbose')
+
+current_channels = current_channels.data.split('\n')
+current_channels[0] = None
+current_channels_size = len(current_channels)
+current_channels[current_channels_size-1] = None
+current_channels[current_channels_size-2] = None
+current_channels[current_channels_size-3] = None
+current_channels[current_channels_size-4] = None
+current_channels[current_channels_size-5] = None
+
+currentChannelsArray = []
+currentCalls = []
+
+for chan in current_channels:
+    if chan != None:
+        #print chan
+        channel     = re.sub(' +',' ',chan[0:21]).lstrip(' ').rstrip(' ')
+        context     = re.sub(' +',' ',chan[21:42]).lstrip(' ').rstrip(' ')
+        extension   = re.sub(' +',' ',chan[42:59]).lstrip(' ').rstrip(' ')
+        priority    = re.sub(' +',' ',chan[59:64]).lstrip(' ').rstrip(' ')
+        state       = re.sub(' +',' ',chan[64:72]).lstrip(' ').rstrip(' ')
+        application = re.sub(' +',' ',chan[72:85]).lstrip(' ').rstrip(' ')
+        data        = re.sub(' +',' ',chan[85:111]).lstrip(' ').rstrip(' ')
+        callerid    = re.sub(' +',' ',chan[111:127]).lstrip(' ').rstrip(' ')
+        duration    = re.sub(' +',' ',chan[127:136]).lstrip(' ').rstrip(' ')
+        accountcode = re.sub(' +',' ',chan[136:148]).lstrip(' ').rstrip(' ')
+        peeraccount = re.sub(' +',' ',chan[148:160]).lstrip(' ').rstrip(' ')
+        bridgedto   = re.sub(' +',' ',chan[160:181]).lstrip(' ').rstrip(' ')
+        currentChannel = Channel(channel,context,extension,priority,state,application,data,callerid,duration,accountcode,peeraccount,bridgedto)
+        #print channel+context+extension+priority+state+application+data+callerid+duration+accountcode+peeraccount+bridgedto
+        currentChannelsArray.append(currentChannel)
+        #print currentChannel
+
+#print(currentChannelsArray)
+#print(current_channels)
+
+internalCalls = 0
+outboundCalls = 0
+inboundCalls  = 0
+
+#Obtengo los canales que fueron levantados en "Dial" y los pongo como llamadas
+for currentChannel in currentChannelsArray:
+    caller = "N/A"
+    called = "N/A"
+    callType = "N/A"
+
+    '''
+    print("Channel:"+currentChannel.Channel\
+          +",Context:"+currentChannel.Context\
+          +",Extension:"+currentChannel.Extension\
+          +",Application:"+currentChannel.Application\
+          +",Data:"+currentChannel.Data\
+          +",BridgedTo:"+currentChannel.BridgedTo)
+    '''
+
+    if "Dial" == currentChannel.Application:
+        currentCall = Call("N/A","N/A","N/A","N/A","N/A","N/A")
+        currentCall.Caller = currentChannel.CallerId
+        currentCall.CallerChannel = currentChannel.Channel
+        currentCall.BridgedChannel = currentChannel.BridgedTo
+        #print "Caller:"+currentCall.Caller+",Channel:"+currentCall.CallerChannel+",BridgedChannel:"+currentCall.BridgedChannel
+        currentCalls.append(currentCall)
+
+
+for currentCall in currentCalls:
+    caller = "N/A"
+    called = "N/A"
+    callType = "N/A"
+    for currentChannel in currentChannelsArray:
+        if "None" not in currentChannel.BridgedTo:
+            if currentCall.BridgedChannel == currentChannel.Channel:
+                currentCall.Called = currentChannel.CallerId
+                currentCall.CalledChannel = currentChannel.Channel
+
+for currentCall in currentCalls:
+    if len(currentCall.Caller) <= extensionLength and len(currentCall.Called) <= extensionLength:
+        currentCall.CallType = "Internal"
+        internalCalls = internalCalls +1
+    if len(currentCall.Caller) > extensionLength and len(currentCall.Called) <= extensionLength:
+        currentCall.CallType = "Inbound"
+        inboundCalls = inboundCalls + 1
+    if len(currentCall.Caller) <= extensionLength and len(currentCall.Called) > extensionLength:
+        currentCall.CallType = "Outbound"
+        outboundCalls = outboundCalls + 1
+    #print "Caller:"+currentCall.Caller+",CallerChannel:"+currentCall.CallerChannel+",BridgedChannel:"+currentCall.BridgedChannel+",Called:"+currentCall.Called+",CalledChannel:"+currentCall.CalledChannel+",CallType:"+currentCall.CallType
+
+print('Internal Calls:')
+print(internalCalls)
+
+print('Inbound Calls:')
+print(inboundCalls)
+
+print('Outbound Calls:')
+print(outboundCalls)
 
 #PRI Channels
 

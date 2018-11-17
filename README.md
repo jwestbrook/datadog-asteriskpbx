@@ -11,6 +11,7 @@ Prerequisites
 Installation (Datadog Agent v6)
 -----------
 For Installation on Datadog Agent v5 [read this document](https://github.com/mafairnet/Asterisk-PBX-Integration-for-Datadog/blob/master/README_v5.md)
+
 Install the Asterisk Manager Python library for datadog.
 
 ```
@@ -48,6 +49,7 @@ init_config:
 		  port: 5038 #defaults to 5038
 		  manager_user: user #required
 		  manager_secret: secret #required
+		  extension_length: 5 #Length of your internal extensions at the PBX
 		  #this user needs to have the command write privilege
 ```
 
