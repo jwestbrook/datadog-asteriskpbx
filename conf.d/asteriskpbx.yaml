@@ -5,5 +5,5 @@ instances:
       port: 5038                        #defaults to 5038
       manager_user: user                #required
       manager_secret: secret            #required
-
+      extension_length: 5               #Length of your internal extensions at the PBX
       #this user needs to have the command write privilege
