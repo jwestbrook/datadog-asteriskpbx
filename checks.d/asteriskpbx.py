@@ -41,12 +41,16 @@ class AsteriskCheck(AgentCheck):
 
         if 'host' not in instance:
             instance['host'] = 'localhost'
+        if 'extension_length' not in instance:
+            self.log.error('extension_length not defined, skipping')
+            return
         if 'manager_user' not in instance:
             self.log.error('manager_user not defined, skipping')
             return
         if 'manager_secret' not in instance:
             self.log.error('manager_secret not defined, skipping')
             return
+            
 
 ######  Connect
         mgr = asterisk.manager.Manager()
@@ -110,7 +114,8 @@ class AsteriskCheck(AgentCheck):
                 peeraccount = re.sub(' +',' ',chan[148:160]).lstrip(' ').rstrip(' ')
                 bridgedto   = re.sub(' +',' ',chan[160:181]).lstrip(' ').rstrip(' ')
                 currentChannel = Channel(channel,context,extension,priority,state,application,data,callerid,duration,accountcode,peeraccount,bridgedto)
-
+                currentChannelsArray.append(currentChannel)
+                
         internalCalls = 0
         outboundCalls = 0
         inboundCalls  = 0
@@ -151,7 +156,7 @@ class AsteriskCheck(AgentCheck):
         self.gauge('asterisk.calls.internal',internalCalls)
         self.gauge('asterisk.calls.inbound',inboundCalls)
         self.gauge('asterisk.calls.outbound',outboundCalls)
-        
+
 ##### SIP Peers
         sip_result = mgr.command('sip show peers')
 
