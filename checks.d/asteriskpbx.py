@@ -115,7 +115,7 @@ class AsteriskCheck(AgentCheck):
                 bridgedto   = re.sub(' +',' ',chan[160:181]).lstrip(' ').rstrip(' ')
                 currentChannel = Channel(channel,context,extension,priority,state,application,data,callerid,duration,accountcode,peeraccount,bridgedto)
                 currentChannelsArray.append(currentChannel)
-                
+
         internalCalls = 0
         outboundCalls = 0
         inboundCalls  = 0
@@ -125,7 +125,7 @@ class AsteriskCheck(AgentCheck):
             called = "N/A"
             callType = "N/A"
 
-            if "Dial" == currentChannel.Application:
+            if "Dial" == currentChannel.Application or "Queue" == currentChannel.Application:
                 currentCall = Call("N/A","N/A","N/A","N/A","N/A","N/A")
                 currentCall.Caller = currentChannel.CallerId
                 currentCall.CallerChannel = currentChannel.Channel
