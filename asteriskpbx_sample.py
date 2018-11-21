@@ -112,6 +112,7 @@ for chan in current_channels:
 internalCalls = 0
 outboundCalls = 0
 inboundCalls  = 0
+conferenceCalls = 0
 
 #Obtengo los canales que fueron levantados en "Dial" y los pongo como llamadas
 for currentChannel in currentChannelsArray:
@@ -128,13 +129,23 @@ for currentChannel in currentChannelsArray:
           +",BridgedTo:"+currentChannel.BridgedTo)
     '''
 
-    if "Dial" == currentChannel.Application:
+    if "Dial" == currentChannel.Application  or "Queue" == currentChannel.Application::
         currentCall = Call("N/A","N/A","N/A","N/A","N/A","N/A")
         currentCall.Caller = currentChannel.CallerId
         currentCall.CallerChannel = currentChannel.Channel
         currentCall.BridgedChannel = currentChannel.BridgedTo
         #print "Caller:"+currentCall.Caller+",Channel:"+currentCall.CallerChannel+",BridgedChannel:"+currentCall.BridgedChannel
         currentCalls.append(currentCall)
+
+    if "ConfBridge" == currentChannel.Application:
+        currentCall = Call("N/A","N/A","N/A","N/A","N/A","N/A")
+        currentCall.Caller = currentChannel.CallerId
+        currentCall.CallerChannel = currentChannel.Channel
+        calledConference = currentChannel.Data.split(',')
+        calledConference = calledConference[0]
+        currentCall.Called = calledConference
+        currentCall.CalledChannel = currentChannel.Channel
+        conferenceCalls = conferenceCalls +1
 
 
 for currentCall in currentCalls:
@@ -167,6 +178,9 @@ print(inboundCalls)
 
 print('Outbound Calls:')
 print(outboundCalls)
+
+print('Conference Calls:')
+print(conferenceCalls)
 
 #PRI Channels
 
