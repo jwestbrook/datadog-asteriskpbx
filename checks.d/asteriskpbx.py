@@ -119,6 +119,7 @@ class AsteriskCheck(AgentCheck):
         internalCalls = 0
         outboundCalls = 0
         inboundCalls  = 0
+        conferenceCalls = 0
 
         for currentChannel in currentChannelsArray:
             caller = "N/A"
@@ -131,6 +132,16 @@ class AsteriskCheck(AgentCheck):
                 currentCall.CallerChannel = currentChannel.Channel
                 currentCall.BridgedChannel = currentChannel.BridgedTo
                 currentCalls.append(currentCall)
+
+            if "ConfBridge" == currentChannel.Application:
+                currentCall = Call("N/A","N/A","N/A","N/A","N/A","N/A")
+                currentCall.Caller = currentChannel.CallerId
+                currentCall.CallerChannel = currentChannel.Channel
+                calledConference = currentChannel.Data.split(',')
+                calledConference = calledConference[0]
+                currentCall.Called = calledConference
+                currentCall.CalledChannel = currentChannel.Channel
+                conferenceCalls = conferenceCalls +1
 
         for currentCall in currentCalls:
             caller = "N/A"
@@ -156,6 +167,7 @@ class AsteriskCheck(AgentCheck):
         self.gauge('asterisk.calls.internal',internalCalls)
         self.gauge('asterisk.calls.inbound',inboundCalls)
         self.gauge('asterisk.calls.outbound',outboundCalls)
+        self.gauge('asterisk.calls.outbound',conferenceCalls)
 
 ##### SIP Peers
         sip_result = mgr.command('sip show peers')
