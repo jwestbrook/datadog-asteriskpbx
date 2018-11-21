@@ -167,7 +167,7 @@ class AsteriskCheck(AgentCheck):
         self.gauge('asterisk.calls.internal',internalCalls)
         self.gauge('asterisk.calls.inbound',inboundCalls)
         self.gauge('asterisk.calls.outbound',outboundCalls)
-        self.gauge('asterisk.calls.outbound',conferenceCalls)
+        self.gauge('asterisk.calls.conference',conferenceCalls)
 
 ##### SIP Peers
         sip_result = mgr.command('sip show peers')
