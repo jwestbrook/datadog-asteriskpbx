@@ -5,7 +5,7 @@ Datadog Agent plugin for the Open Source Asterisk PBX based on the work of jwest
 
 Prerequisites
 -----------
-- DataDog Agent v5 (1.5) or v6 (6.3.1)
+- Datadog Agent v5 (1.5) or v6 (6.3.1)
 - pyst Library
 
 Installation (Datadog Agent v6)
@@ -53,13 +53,13 @@ init_config:
 		  #this user needs to have the command write privilege
 ```
 
-Restart  the datadog service.
+Restart  the Datadog service.
 
 ```
 /etc/init.d/datadog-agent restart
 ```
 
-Check the datadog service status.
+Check the Datadog service status.
 
 ```
 /etc/init.d/datadog-agent info
