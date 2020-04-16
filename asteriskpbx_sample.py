@@ -129,7 +129,7 @@ for currentChannel in currentChannelsArray:
           +",BridgedTo:"+currentChannel.BridgedTo)
     '''
 
-    if "Dial" == currentChannel.Application  or "Queue" == currentChannel.Application::
+    if "Dial" == currentChannel.Application  or "Queue" == currentChannel.Application:
         currentCall = Call("N/A","N/A","N/A","N/A","N/A","N/A")
         currentCall.Caller = currentChannel.CallerId
         currentCall.CallerChannel = currentChannel.Channel
@@ -188,18 +188,20 @@ pri = mgr.command('pri show channels')
 
 pri_channels = pri.data.split('\n')
 
-pri_channels[0] = None
-pri_channels[1] = None
+if "No such command" not in pri.data:
 
-openchannels = 0
-for chan in pri_channels:
-    if chan != None:
-        chan_data = chan.split()
-        if len(chan_data) > 2 and chan_data[3] == "No":
-            openchannels += 1
+    pri_channels[0] = None
+    pri_channels[1] = None
 
-print('Current in use PRI Channels')
-print(openchannels)
+    openchannels = 0
+    for chan in pri_channels:
+        if chan != None:
+            chan_data = chan.split()
+            if len(chan_data) > 2 and chan_data[3] == "No":
+                openchannels += 1
+
+    print('Current in use PRI Channels')
+    print(openchannels)
 
 #SIP Peers
 
@@ -207,19 +209,21 @@ sip_result = mgr.command('sip show peers')
 
 sip_results = sip_result.data.split('\n')
 
-siptotals = sip_results[len(sip_results)-3]
+if "No such command" not in sip_result.data:
 
-siptotal = re.findall(r'([0-9]+) sip peer',siptotals)[0]
+    siptotals = sip_results[len(sip_results)-3]
 
-monitored_peers = re.findall(r'Monitored: ([0-9]+) online, ([0-9]+) offline',siptotals)[0]
-unmonitored_peers = re.findall(r'Unmonitored: ([0-9]+) online, ([0-9]+) offline',siptotals)[0]
+    siptotal = re.findall(r'([0-9]+) sip peer',siptotals)[0]
 
-print('Total SIP Peers')
-print(siptotal)
-print('Monitored SIP Peers online/offline')
-print(monitored_peers)
-print('Unmonitored SIP Peers online/offline')
-print(unmonitored_peers)
+    monitored_peers = re.findall(r'Monitored: ([0-9]+) online, ([0-9]+) offline',siptotals)[0]
+    unmonitored_peers = re.findall(r'Unmonitored: ([0-9]+) online, ([0-9]+) offline',siptotals)[0]
+
+    print('Total SIP Peers')
+    print(siptotal)
+    print('Monitored SIP Peers online/offline')
+    print(monitored_peers)
+    print('Unmonitored SIP Peers online/offline')
+    print(unmonitored_peers)
 
 #IAX2 Peers
 
@@ -227,22 +231,24 @@ iax_result = mgr.command('iax2 show peers')
 
 iax_results = iax_result.data.split('\n')
 
-iax_total_line = iax_results[len(iax_results)-3]
+if "No such command" not in iax_result.data:
 
-iax_peers_total = re.findall(r'([0-9]+) iax2 peers',iax_total_line)[0]
-iax_peers_online = re.findall(r'\[([0-9]+) online',iax_total_line)[0]
-iax_peers_offline = re.findall(r'([0-9]+) offline',iax_total_line)[0]
-iax_peers_unmonitored = re.findall(r'([0-9]+) unmonitored',iax_total_line)[0]
+    iax_total_line = iax_results[len(iax_results)-3]
+
+    iax_peers_total = re.findall(r'([0-9]+) iax2 peers',iax_total_line)[0]
+    iax_peers_online = re.findall(r'\[([0-9]+) online',iax_total_line)[0]
+    iax_peers_offline = re.findall(r'([0-9]+) offline',iax_total_line)[0]
+    iax_peers_unmonitored = re.findall(r'([0-9]+) unmonitored',iax_total_line)[0]
 
 
-print('Total IAX2 Peers')
-print(iax_peers_total)
-print('IAX2 Peers Online')
-print(iax_peers_online)
-print('IAX2 Peers Offline')
-print(iax_peers_offline)
-print('IAX2 Peers Unmonitored')
-print(iax_peers_unmonitored)
+    print('Total IAX2 Peers')
+    print(iax_peers_total)
+    print('IAX2 Peers Online')
+    print(iax_peers_online)
+    print('IAX2 Peers Offline')
+    print(iax_peers_offline)
+    print('IAX2 Peers Unmonitored')
+    print(iax_peers_unmonitored)
 
 #DAHDI Trunks
 
@@ -250,40 +256,42 @@ dahdi_result = mgr.command('dahdi show status')
 
 dahdi_results = dahdi_result.data.split('\n')
 
-dahdi_total_trunks = len(dahdi_results)-3
+if "No such command" not in dahdi_result.data:
 
-dahdi_results[0] = None
+    dahdi_total_trunks = len(dahdi_results)-3
 
-dahdi_online_trunks = 0
-dahdi_offline_trunks = 0
+    dahdi_results[0] = None
 
-for chan in dahdi_results:
-    if chan != None:
+    dahdi_online_trunks = 0
+    dahdi_offline_trunks = 0
 
-        chan_data = chan.split()
+    for chan in dahdi_results:
+        if chan != None:
 
-        if len(chan_data) > 1:
-            #Digium Cards
-            if "Wildcard" in chan_data[0]:
-                if len(chan_data) > 2 and chan_data[2] == "OK":
-                    dahdi_online_trunks += 1
-                if len(chan_data) > 2 and chan_data[2] == "RED":
-                    dahdi_offline_trunks += 1
-            #Sangoma Cards
-            if "wanpipe" in chan_data[0]:
-                if len(chan_data) > 2 and chan_data[3] == "OK":
-                    dahdi_online_trunks += 1
-                if len(chan_data) > 2 and chan_data[3] == "RED":
-                    dahdi_offline_trunks += 1
+            chan_data = chan.split()
 
-print('Total Dahdi Trunks')
-print(dahdi_total_trunks)
+            if len(chan_data) > 1:
+                #Digium Cards
+                if "Wildcard" in chan_data[0]:
+                    if len(chan_data) > 2 and chan_data[2] == "OK":
+                        dahdi_online_trunks += 1
+                    if len(chan_data) > 2 and chan_data[2] == "RED":
+                        dahdi_offline_trunks += 1
+                #Sangoma Cards
+                if "wanpipe" in chan_data[0]:
+                    if len(chan_data) > 2 and chan_data[3] == "OK":
+                        dahdi_online_trunks += 1
+                    if len(chan_data) > 2 and chan_data[3] == "RED":
+                        dahdi_offline_trunks += 1
 
-print('DAHDI Online Trunks')
-print(dahdi_online_trunks)
+    print('Total Dahdi Trunks')
+    print(dahdi_total_trunks)
 
-print('DAHDI Offline Trunks')
-print(dahdi_offline_trunks)
+    print('DAHDI Online Trunks')
+    print(dahdi_online_trunks)
+
+    print('DAHDI Offline Trunks')
+    print(dahdi_offline_trunks)
 
 #SIP Trunks (You have to add '-trunk' string into your SIP trunk name to detect it as a Trunk)
 
@@ -320,20 +328,22 @@ g729_result = mgr.command('g729 show licenses')
 
 g729_results = g729_result.data.split('\n')
 
-g729_total_line = g729_results[0]
+if "No such command" not in g729_result.data:
 
-g729_total = re.findall(r'([0-9]+) licensed',g729_total_line)[0]
-g729_encoders = re.split('/',g729_total_line)[0]
-g729_decoders = re.findall(r'([0-9]+) encoders/decoders',g729_total_line)[0]
+    g729_total_line = g729_results[0]
 
-print('G729 Total')
-print(g729_total)
+    g729_total = re.findall(r'([0-9]+) licensed',g729_total_line)[0]
+    g729_encoders = re.split('/',g729_total_line)[0]
+    g729_decoders = re.findall(r'([0-9]+) encoders/decoders',g729_total_line)[0]
 
-print('G279 In Use Encoders')
-print(g729_encoders)
+    print('G729 Total')
+    print(g729_total)
 
-print('G279 In Use Decoders')
-print(g729_decoders)
+    print('G279 In Use Encoders')
+    print(g729_encoders)
+
+    print('G279 In Use Decoders')
+    print(g729_decoders)
 
 ##### Asterisk Uptime
 
@@ -393,37 +403,39 @@ mfcr2_result = mgr.command('mfcr2 show channels')
 
 mfcr2_results = mfcr2_result.data.split('\n')
 
-mfcr2_total_channels = len(mfcr2_results)-3
+if "No such command" not in mfcr2_result.data:
 
-mfcr2_results[0] = None
+    mfcr2_total_channels = len(mfcr2_results)-3
 
-mfcr2_inuse_channels = 0
-mfcr2_available_channels = 0
-mfcr2_blocked_channels = 0
+    mfcr2_results[0] = None
 
-for chan in mfcr2_results:
-    if chan != None:
-        chan_data = chan.split()
-        print(chan_data)
-        if len(chan_data) > 2:
-            if "IDLE" in chan_data[6] and "IDLE" in chan_data[7] :
-                mfcr2_available_channels += 1
-            if "ANSWER" in chan_data[6] or "ANSWER" in chan_data[7] :
-                mfcr2_inuse_channels += 1
-            if "BLOCK" in chan_data[6] or "BLOCK" in chan_data[7] :
-                mfcr2_blocked_channels += 1
+    mfcr2_inuse_channels = 0
+    mfcr2_available_channels = 0
+    mfcr2_blocked_channels = 0
 
-print('Total MFCR2 Channels')
-print(mfcr2_total_channels)
+    for chan in mfcr2_results:
+        if chan != None:
+            chan_data = chan.split()
+            print(chan_data)
+            if len(chan_data) > 2:
+                if "IDLE" in chan_data[6] and "IDLE" in chan_data[7] :
+                    mfcr2_available_channels += 1
+                if "ANSWER" in chan_data[6] or "ANSWER" in chan_data[7] :
+                    mfcr2_inuse_channels += 1
+                if "BLOCK" in chan_data[6] or "BLOCK" in chan_data[7] :
+                    mfcr2_blocked_channels += 1
 
-print('MFCR2 InUse Channels')
-print(mfcr2_inuse_channels)
+    print('Total MFCR2 Channels')
+    print(mfcr2_total_channels)
 
-print('MFCR2 Available Channels')
-print(mfcr2_available_channels)
+    print('MFCR2 InUse Channels')
+    print(mfcr2_inuse_channels)
 
-print('MFCR2 Blocked Channels')
-print(mfcr2_blocked_channels)
+    print('MFCR2 Available Channels')
+    print(mfcr2_available_channels)
+
+    print('MFCR2 Blocked Channels')
+    print(mfcr2_blocked_channels)
 
 ##### SCCP Devices
 
