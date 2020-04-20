@@ -14,6 +14,7 @@
 
 import asterisk.manager
 import re
+import yaml
 
 
 class Channel:
@@ -44,8 +45,22 @@ host    = "localhost"
 port    = 5038
 user    = "user"
 secret  = "secret"
-
 extensionLength = 5
+sip_trunks = {}
+
+with open(r'conf.d/asteriskpbx.yaml') as file:
+
+    data = yaml.full_load(file)
+
+    for k, item in data.items():
+        if k == "instances":
+            for config in item:
+                host = config["host"]
+                port = config["port"]
+                user = config["manager_user"]
+                secret = config["manager_secret"]
+                extension_length = config["extension_length"]
+                sip_trunks = config["sip_trunks"]
 
 mgr = asterisk.manager.Manager()
 mgr.connect(host,port)
@@ -182,6 +197,36 @@ print(outboundCalls)
 print('Conference Calls:')
 print(conferenceCalls)
 
+
+#SIP Trunks Use
+sip_trunks_data = {}
+i = 0
+for sip_trunk in sip_trunks:
+    sip_trunks_data [i] = {"name":sip_trunk["name"],"type":sip_trunk["type"],"channels_in_use":0}
+    i = i +1
+
+#print(sip_trunks_data)
+
+'''
+for sip_trunk_index in sip_trunks_data:
+    print("TrunkData")
+    print sip_trunks_data[sip_trunk_index]['name']
+    for element in sip_trunks_data[sip_trunk_index]:
+        print(element,':',sip_trunks_data[sip_trunk_index][element])
+'''
+
+for currentChannel in currentChannelsArray:
+    for sip_trunk_index in sip_trunks_data:
+        sip_trunk_name = sip_trunks_data[sip_trunk_index]['name'][:16]
+        sip_trunk_name = sip_trunk_name.strip()
+        if sip_trunk_name in currentChannel.Channel:
+            channels_in_use = sip_trunks_data[sip_trunk_index]['channels_in_use'] + 1
+            new_data = {sip_trunk_index:{"name":sip_trunk["name"],"type":sip_trunks_data[sip_trunk_index]["type"],"channels":channels_in_use}}
+            sip_trunks_data.update(new_data)
+
+print("SIP Trunks Channel Usage")
+print(sip_trunks_data)
+
 #PRI Channels
 
 pri = mgr.command('pri show channels')
@@ -306,12 +351,13 @@ for chan in sip_results:
         chan_data = chan.split()
 
         if len(chan_data) > 1:
-            if "-trunk" in chan_data[0]:
-                sip_total_trunks += 1
-                if len(chan_data) > 2 and "OK" in chan_data[5]:
-                    sip_online_trunks += 1
-                if len(chan_data) > 2 and chan_data[5] == "UNREACHABLE":
-                    sip_offline_trunks += 1
+            for item in sip_trunks:
+                if item["name"] == chan_data[0]:
+                    sip_total_trunks += 1
+                    if len(chan_data) > 2 and "OK" in chan_data[5]:
+                        sip_online_trunks += 1
+                    if len(chan_data) > 2 and chan_data[5] == "UNREACHABLE":
+                        sip_offline_trunks += 1
 
 print('Total SIP Trunks')
 print(sip_total_trunks)

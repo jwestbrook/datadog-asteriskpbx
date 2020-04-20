@@ -194,18 +194,50 @@ class AsteriskCheck(AgentCheck):
         sip_online_trunks = 0
         sip_offline_trunks = 0
 
-        trunks = re.finditer('^.*-trunk.*([OK|UN].*)', sip_result.data, re.MULTILINE)
+        sip_trunks = instance['sip_trunks']
 
-        for trunk in trunks:
-            sip_total_trunks +=1
-            if 'OK' in trunk.group():
-                sip_online_trunks += 1
-            else:
-                sip_offline_trunks += 1
+        for chan in sip_results:
+            if chan != None:
+                chan_data = chan.split()
+                if len(chan_data) > 1:
+                    for item in sip_trunks:
+                        if item["name"] in chan_data[0]:
+                            sip_total_trunks += 1
+                            if len(chan_data) > 2 and "OK" in chan_data[5]:
+                                sip_online_trunks += 1
+                            if len(chan_data) > 2 and chan_data[5] == "UNREACHABLE":
+                                sip_offline_trunks += 1
       
         self.gauge('asterisk.sip.trunks.total',sip_total_trunks)
         self.gauge('asterisk.sip.trunks.online',sip_online_trunks)
         self.gauge('asterisk.sip.trunks.offline',sip_offline_trunks)
+
+#SIP Trunks Use
+        sip_trunks_data = {}
+        i = 0
+        for sip_trunk in sip_trunks:
+            sip_trunks_data [i] = {"name":sip_trunk["name"],"type":sip_trunk["type"],"total_channels":sip_trunk["total_channels"],"channels_in_use":0}
+            i = i +1
+
+        for currentChannel in currentChannelsArray:
+            for sip_trunk_index in sip_trunks_data:
+                sip_trunk_name = sip_trunks_data[sip_trunk_index]['name'][:16]
+                sip_trunk_name = sip_trunk_name.strip()
+                if sip_trunk_name in currentChannel.Channel:
+                    channels_in_use = sip_trunks_data[sip_trunk_index]['channels_in_use'] + 1
+                    new_data = {sip_trunk_index:{"name":sip_trunk["name"],"type":sip_trunks_data[sip_trunk_index]["type"],"total_channels":sip_trunk["total_channels"],"channels_in_use":channels_in_use}}
+                    sip_trunks_data.update(new_data)
+
+        for sip_trunk_index in sip_trunks_data:
+            name = sip_trunks_data[sip_trunk_index]['name']
+            type = sip_trunks_data[sip_trunk_index]['type']
+            total_channels = sip_trunks_data[sip_trunk_index]['total_channels']
+            channels_in_use = sip_trunks_data[sip_trunk_index]['channels_in_use']
+            available = total_channels - channels_in_use
+
+            self.gauge('asterisk.sip.trunks.'+ name +'.'+type+'.channels.total',total_channels)
+            self.gauge('asterisk.sip.trunks.'+ name +'.'+type+'.channels.inUse',channels_in_use)
+            self.gauge('asterisk.sip.trunks.'+ name +'.'+type+'.channels.available',available)
 
 ##### PRI In Use
 

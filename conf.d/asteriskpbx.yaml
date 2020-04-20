@@ -7,3 +7,14 @@ instances:
       manager_secret: secret            #required
       extension_length: 5               #Length of your internal extensions at the PBX
       #this user needs to have the command write privilege
+
+      sip_trunks:
+          - name: sip-trunk-name
+            type: inbound
+            total_channels: 30
+          - name: sip-trunk-name
+            type: outbound
+            total_channels: 30
+          - name: sip-trunk-name
+            type: both
+            total_channels: 30
