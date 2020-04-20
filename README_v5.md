@@ -7,6 +7,7 @@ Prerequisites
 -----------
 - DataDog Agent v5 (1.5)
 - pyst Library
+- PyYaml (for test)
 
 Installation
 -----------
@@ -75,10 +76,14 @@ Important notes
 -----------
 **SIP Trunks Metrics**
 
-You have to add '-trunk' string into your SIP trunk name to detect it as a Trunk so the script can detect the SIP Trunks. You can verify this when executing the next command in the console:
+It is highly recommended that you use '-trunk' string as posfix into your SIP trunk name to detect it as a Trunk so the script can detect the SIP Trunks. You can verify this when executing the next command in the console:
 
 ```
 [user@yourpbx]# asterisk -rx 'sip show peers' | grep "\-trunk"
 SIP1-trunk          192.168.1.10                                  Yes        Yes            5060     OK (1 ms)
 SIP2-trunk/SIP2     192.168.1.11                                  Yes        Yes            5060     OK (1 ms)
 ```
+
+But in the lastest changes SIP Trunks monitoring was improved:
+-You dont need to put "-trunk" posfix to detect SIP Trunks. Just add them in the YAML config file. 
+-SIP Trunks Channels Usage added, just add the total capacity of your SIP Trunk for channels.
