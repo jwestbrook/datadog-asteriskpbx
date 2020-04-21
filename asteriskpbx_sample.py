@@ -221,7 +221,7 @@ for currentChannel in currentChannelsArray:
         sip_trunk_name = sip_trunk_name.strip()
         if sip_trunk_name in currentChannel.Channel:
             channels_in_use = sip_trunks_data[sip_trunk_index]['channels_in_use'] + 1
-            new_data = {sip_trunk_index:{"name":sip_trunk["name"],"type":sip_trunks_data[sip_trunk_index]["type"],"channels":channels_in_use}}
+            new_data = {sip_trunk_index:{"name":sip_trunks_data[sip_trunk_index]["name"],"type":sip_trunks_data[sip_trunk_index]["type"],"channels":channels_in_use}}
             sip_trunks_data.update(new_data)
 
 print("SIP Trunks Channel Usage")
